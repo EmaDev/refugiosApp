@@ -1,27 +1,32 @@
 import React, { useRef, useState } from 'react';
-import { FlatList, View, Text, NativeSyntheticEvent, NativeScrollEvent, Dimensions, StyleSheet } from 'react-native';
+import { FlatList, View, Text, NativeSyntheticEvent, NativeScrollEvent, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { ImagenSlider } from './ImagenSlider';
+import { Button } from '@rneui/base';
+import LinearGradient from 'react-native-linear-gradient';
+import { Icon, Overlay } from '@rneui/themed';
 
 interface Props {
     lista: String[];
 }
 
-const renderItem = (data: any) => {
-    return (
-        <ImagenSlider src={data.item} loading={true} />
-    )
-}
 
 const dimensiones = Dimensions.get("window");
 export const SliderImagenes = ({ lista }: Props) => {
 
     const [posicionIndicador, setPosicionIndicador] = useState<number>(0);
-    const listRef = useRef(null);
+    const listRef: any = useRef(null);
+    const [visible, setVisible] = useState(false);
+
+    const toggleOverlay = () => {
+        setVisible(!visible);
+    };
 
     const renderPosicionIndicador = () => {
         return lista.map((item, index) => (
-            <View key={index} style={{ backgroundColor: (index == posicionIndicador) ? "white" : "grey",
-            flex: 1, height: 5, marginHorizontal: 1, borderRadius: 10}}>
+            <View key={index} style={{
+                backgroundColor: (index == posicionIndicador) ? "white" : "rgba(255,255,255,0.3)",
+                flex: 1, height: 5, marginHorizontal: 1, borderRadius: 10
+            }}>
             </View>
         ))
     }
@@ -32,26 +37,101 @@ export const SliderImagenes = ({ lista }: Props) => {
         setPosicionIndicador(index);
     }
 
+    const trasladarEnSlider = (direccion: "LEFT" | "RIGHT" = "RIGHT") => {
+        if (posicionIndicador == lista.length - 1 && direccion == "RIGHT") {
+            setPosicionIndicador(0);
+            listRef.current.scrollToIndex({
+                index: 0,
+                animation: true
+            })
+        } else if (direccion == "RIGHT") {
+            listRef.current.scrollToIndex({
+                index: posicionIndicador + 1,
+                animation: true
+            })
+            setPosicionIndicador((prev) => prev + 1);
+        } else if (direccion == "LEFT" && posicionIndicador > 0) {
+            listRef.current.scrollToIndex({
+                index: posicionIndicador - 1,
+                animation: true
+            });
+            setPosicionIndicador((prev) => prev - 1);
+        }
+    }
 
     return (
         <View style={styles.contenedor}>
             <View style={styles.barraPosicion}>
-                 
+                {renderPosicionIndicador()}
             </View>
             <FlatList
                 data={lista}
-                renderItem={(data) => 
-                    <ImagenSlider loading={true} src={data.item}/>
+                renderItem={(data) =>
+                    <ImagenSlider loading={true} src={data.item} trasladarEnSlider={trasladarEnSlider} />
                 }
                 horizontal
                 keyExtractor={(item, i) => (item + "-" + i)}
                 pagingEnabled
+                scrollEnabled={false}
                 showsHorizontalScrollIndicator={false}
                 ref={listRef}
                 onScroll={(event) => { getPosicionItem(event) }}
-                style={{flex: 1}}
+                style={{ flex: 1 }}
             />
-            
+            <LinearGradient colors={["transparent", "#000", "#000"]} style={styles.descripcion}>
+                <TouchableOpacity 
+                onPress={toggleOverlay}
+                style={{ margin: 5, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <Text style={{ ...styles.text, fontSize: 32, fontWeight: "800" }}>Sultan</Text>
+                    <Icon
+                        name='caret-up-outline'
+                        type='ionicon'
+                        color={"white"}
+                        size={20}
+                        containerStyle={{ borderWidth: 2, borderColor: "white", height: 30, width: 30, borderRadius: 30 / 2, alignItems: "center", justifyContent: "center" }}
+                    />
+                </TouchableOpacity >
+                <Text style={{ ...styles.text, fontSize: 18 }}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Incidunt dolorem nobis quasi veniam! Illum perferendis dolor</Text>
+                <View style={{ margin: 5, display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon
+                        name='location-outline'
+                        type='ionicon'
+                        color={"white"}
+                        size={16}
+                    />
+                    <Text style={{ ...styles.text }}>A 10 km de distancia</Text>
+                </View>
+                <View style={{ margin: 5, display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <Icon
+                        name='person-outline'
+                        type='ionicon'
+                        color={"white"}
+                        size={16}
+                    />
+                    <Text style={{ ...styles.text }}>Genero: Macho</Text>
+                </View>
+            </LinearGradient>
+            <Overlay isVisible={visible} onBackdropPress={toggleOverlay}
+            overlayStyle={{width: dimensiones.width, height: dimensiones.height}}
+            >
+                <Text >Hello!</Text>
+                <Text >
+                    Welcome to React Native Elements
+                </Text>
+                <Button
+                    icon={
+                        <Icon
+                            name="wrench"
+                            type="font-awesome"
+                            color="white"
+                            size={25}
+                            iconStyle={{ marginRight: 10 }}
+                        />
+                    }
+                    title="Start Building"
+                    onPress={toggleOverlay}
+                />
+            </Overlay>
         </View>
     )
 }
@@ -59,20 +139,31 @@ export const SliderImagenes = ({ lista }: Props) => {
 
 const styles = StyleSheet.create({
     contenedor: {
-        height: dimensiones.height * 0.88,
-        width: dimensiones.width * 0.92,
+        flex: 1,
         alignContent: "center",
         margin: 6,
-        position: "relative"
+        position: "relative",
+        borderWidth: 4,
+        borderRadius: 6,
+        borderColor: "white"
     },
     barraPosicion: {
+        position: "absolute",
         height: 10,
-        top: 10,
-        width: dimensiones.width * 0.92,
+        top: 2,
+        width: "100%",
         borderRadius: 10,
         zIndex: 1,
         display: "flex",
         flexDirection: "row",
-        backgroundColor: "transparent"
+    },
+    descripcion: {
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        padding: 10
+    },
+    text: {
+        color: "white"
     }
 });

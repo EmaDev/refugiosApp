@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, Image } from "react-native";
+import { View, StyleSheet, Dimensions, Image, GestureResponderEvent } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import { getColors } from 'react-native-image-colors';
-import { Text } from 'react-native';
+import { Pressable } from 'react-native';
 
 interface Props {
     src: String;
     alt?: string;
     loading: boolean;
+    trasladarEnSlider: (direccion: "LEFT" | "RIGHT") => void;
 }
 
 const dimensiones = Dimensions.get("window");
 
-export const ImagenSlider = ({ src, alt = "Imagen", loading }: Props) => {
+export const ImagenSlider = ({ src, alt = "Imagen", loading, trasladarEnSlider}: Props) => {
 
     const [color, setColor] = useState<{ primario: string, secundario: string }>({ primario: "#e1e1e1", secundario: "#e1e1e1" });
 
@@ -27,38 +28,38 @@ export const ImagenSlider = ({ src, alt = "Imagen", loading }: Props) => {
         getColor();
     }, []);
 
+    const desplazarSegunPosicionPress = (event:GestureResponderEvent) => {
+        const { locationX } = event.nativeEvent;
+        const mitad = (dimensiones.width * 0.92) / 2;
+        if(locationX > mitad){
+            trasladarEnSlider("RIGHT");
+        }else{
+            trasladarEnSlider("LEFT");
+        }
+    }
 
     return (
-        <LinearGradient  colors={[color.primario, color.secundario]} style={{ ...styles.gradient, backgroundColor: src.toString() }}>
-            <Image style={styles.imagen} resizeMode='contain'
-                source={{ uri: src.toString() }} />
-        </LinearGradient>
+        <Pressable onPress={desplazarSegunPosicionPress}>
+            <LinearGradient colors={[color.primario, color.secundario]} style={{ ...styles.gradient, backgroundColor: src.toString() }}>
+                <Image style={styles.imagen} resizeMode='contain'
+                    source={{ uri: src.toString() }} />
+            </LinearGradient>
+        </Pressable>
     )
 }
 
 
 const styles = StyleSheet.create({
-    contenedor: {
-        //height: dimensiones.height,
-        //width: dimensiones.width,
-        //display: "flex",
-        //alignItems: "center",
-        //justifyContent: "center"
-    },
     gradient: {
         flex: 1,
         width: dimensiones.width * 0.92,
-        borderRadius: 12
+        borderRadius: 4,
+        paddingBottom: 12
     },
     imagen: {
         flex: 1,
         padding: 0,
         position: "relative",
-        borderRadius: 0
+        borderRadius: 0,
     }
 });
-
-
-//<LinearGradient colors={[color.primario, color.secundario} style={styles.gradient}>
-// <Image style={styles.imagen} resizeMode='contain'
-//source={{ uri: src.toString() }} />
