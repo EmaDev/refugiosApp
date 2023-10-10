@@ -1,25 +1,18 @@
 import React, { useRef, useState } from 'react';
 import { FlatList, View, Text, NativeSyntheticEvent, NativeScrollEvent, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { ImagenSlider } from './ImagenSlider';
-import { Button } from '@rneui/base';
 import LinearGradient from 'react-native-linear-gradient';
-import { Icon, Overlay } from '@rneui/themed';
+import { Icon } from '@rneui/themed';
 
 interface Props {
     lista: String[];
 }
 
 
-const dimensiones = Dimensions.get("window");
 export const SliderImagenes = ({ lista }: Props) => {
 
     const [posicionIndicador, setPosicionIndicador] = useState<number>(0);
     const listRef: any = useRef(null);
-    const [visible, setVisible] = useState(false);
-
-    const toggleOverlay = () => {
-        setVisible(!visible);
-    };
 
     const renderPosicionIndicador = () => {
         return lista.map((item, index) => (
@@ -67,7 +60,8 @@ export const SliderImagenes = ({ lista }: Props) => {
             <FlatList
                 data={lista}
                 renderItem={(data) =>
-                    <ImagenSlider loading={true} src={data.item} trasladarEnSlider={trasladarEnSlider} />
+                    <ImagenSlider loading={true} src={data.item} trasladarEnSlider={trasladarEnSlider} 
+                    width={Dimensions.get("window").width * 0.9}/>
                 }
                 horizontal
                 keyExtractor={(item, i) => (item + "-" + i)}
@@ -80,7 +74,7 @@ export const SliderImagenes = ({ lista }: Props) => {
             />
             <LinearGradient colors={["transparent", "#000", "#000"]} style={styles.descripcion}>
                 <TouchableOpacity 
-                onPress={toggleOverlay}
+                //onPress={toggleOverlay}  
                 style={{ margin: 5, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                     <Text style={{ ...styles.text, fontSize: 32, fontWeight: "800" }}>Sultan</Text>
                     <Icon
@@ -111,27 +105,6 @@ export const SliderImagenes = ({ lista }: Props) => {
                     <Text style={{ ...styles.text }}>Genero: Macho</Text>
                 </View>
             </LinearGradient>
-            <Overlay isVisible={visible} onBackdropPress={toggleOverlay}
-            overlayStyle={{width: dimensiones.width, height: dimensiones.height}}
-            >
-                <Text >Hello!</Text>
-                <Text >
-                    Welcome to React Native Elements
-                </Text>
-                <Button
-                    icon={
-                        <Icon
-                            name="wrench"
-                            type="font-awesome"
-                            color="white"
-                            size={25}
-                            iconStyle={{ marginRight: 10 }}
-                        />
-                    }
-                    title="Start Building"
-                    onPress={toggleOverlay}
-                />
-            </Overlay>
         </View>
     )
 }

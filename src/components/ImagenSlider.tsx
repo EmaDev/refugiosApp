@@ -9,11 +9,12 @@ interface Props {
     alt?: string;
     loading: boolean;
     trasladarEnSlider: (direccion: "LEFT" | "RIGHT") => void;
+    width: number;
 }
 
 const dimensiones = Dimensions.get("window");
 
-export const ImagenSlider = ({ src, alt = "Imagen", loading, trasladarEnSlider}: Props) => {
+export const ImagenSlider = ({ src, alt = "Imagen", loading, trasladarEnSlider, width}: Props) => {
 
     const [color, setColor] = useState<{ primario: string, secundario: string }>({ primario: "#e1e1e1", secundario: "#e1e1e1" });
 
@@ -40,7 +41,8 @@ export const ImagenSlider = ({ src, alt = "Imagen", loading, trasladarEnSlider}:
 
     return (
         <Pressable onPress={desplazarSegunPosicionPress}>
-            <LinearGradient colors={[color.primario, color.secundario]} style={{ ...styles.gradient, backgroundColor: src.toString() }}>
+            <LinearGradient colors={[color.primario, color.secundario]} 
+            style={{ ...styles.gradient, backgroundColor: src.toString(), width}}>
                 <Image style={styles.imagen} resizeMode='contain'
                     source={{ uri: src.toString() }} />
             </LinearGradient>
@@ -52,7 +54,6 @@ export const ImagenSlider = ({ src, alt = "Imagen", loading, trasladarEnSlider}:
 const styles = StyleSheet.create({
     gradient: {
         flex: 1,
-        width: dimensiones.width * 0.92,
         borderRadius: 4,
         paddingBottom: 12
     },
